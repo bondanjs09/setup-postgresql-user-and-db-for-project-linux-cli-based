@@ -6,65 +6,47 @@
 
 2.  Masuk ke interface PostgreSQL sebagai user `postgres`:
 
-```{=html}
-<!-- -->
-```
+```{=bash}
     sudo -u postgres psql
 
 3.  Buat user untuk proyek:
 
-```{=html}
-<!-- -->
-```
+```{=sql}
     CREATE USER <user> WITH PASSWORD '<password>';
 
 4.  Berikan hak akses user untuk membuat database:
 
-```{=html}
-<!-- -->
-```
+```{=sql}
     ALTER USER <user> CREATEDB;
 
 5.  Buat database proyek:
 
-```{=html}
-<!-- -->
-```
+```{=sql}
     CREATE DATABASE <nama_database>;
 
 6.  Berikan hak akses database ke user:
 
-```{=html}
-<!-- -->
-```
+```{=sql}
     GRANT ALL PRIVILEGES ON DATABASE <nama_database> TO <user>;
 
 7.  Keluar dari psql:
 
-```{=html}
-<!-- -->
-```
+```{=bash}
     \q
 
 8.  Edit file konfigurasi PostgreSQL:
 
-```{=html}
-<!-- -->
-```
+```{=bash}
     sudo nano /etc/postgresql/<versi_postgresql>/main/pg_hba.conf
 
 9.  Cari baris berikut:
 
 ```{=html}
-<!-- -->
-```
     local   all             all                                     peer
 
 10. Ubah `peer` menjadi:
 
 ```{=html}
-<!-- -->
-```
     md5
 
 11. Simpan file dan keluar:
@@ -75,16 +57,12 @@
 
 12. Restart service PostgreSQL:
 
-```{=html}
-<!-- -->
-```
+```{=bash}
     sudo systemctl restart postgresql
 
 13. Tes koneksi:
 
-```{=html}
-<!-- -->
-```
+```{=bash}
     psql -U <user> -d <nama_database> -W
 
 ------------------------------------------------------------------------
