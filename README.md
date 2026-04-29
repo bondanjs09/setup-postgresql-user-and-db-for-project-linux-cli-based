@@ -10,10 +10,16 @@
     sudo -u postgres psql
 ```
 
-3.  Buat user untuk proyek:
+3.  Buat user role:
 
 ```sql
-    CREATE USER <user> WITH PASSWORD '<password>';
+CREATE USER <nama_user> WITH PASSWORD '<password>';
+```
+
+Opsional (umumnya diperlukan untuk aplikasi backend) :
+
+```sql
+ALTER USER <nama_user> WITH LOGIN;
 ```
 
 4.  Berikan hak akses user untuk membuat database:
@@ -22,55 +28,102 @@
     ALTER USER <user> CREATEDB;
 ```
 
-5.  Buat database proyek:
+5.  Buat database dengan owner:
 
 ```sql
-    CREATE DATABASE <nama_database>;
+CREATE DATABASE <nama_database>
+OWNER <nama_user>
+ENCODING 'UTF8';
 ```
 
-6.  Berikan hak akses database ke user:
-
-```sql
-    GRANT ALL PRIVILEGES ON DATABASE <nama_database> TO <user>;
-```
-
-7.  Keluar dari psql:
+6. Koneksi ke database
 
 ```bash
-    \q
+\c <nama_database>
 ```
 
-8.  Edit file konfigurasi PostgreSQL:
+7. Buat schema khusus
+
+```sql
+CREATE SCHEMA <nama_schema> AUTHORIZATION <nama_user>;
+```
+
+8. Set default schema
+
+```sql
+ALTER ROLE <nama_user> SET search_path TO <nama_schema>;
+```
+
+9. Amankan schema public
+
+```sql
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM <nama_user>;
+```
+
+10. Grant privilege yang eksplisit
+
+```sql
+GRANT ALL PRIVILEGES ON DATABASE <nama_database> TO <nama_user>;
+GRANT ALL PRIVILEGES ON SCHEMA <nama_schema> TO <nama_user>;
+```
+
+11. Keluar dari interface superuser
+
+```bash
+\q
+```
+
+12. Masuk ke dalam database dengan user yang sudah dibuat :
+
+```bash
+psql -U <nama_user> -d <nama_database> -h localhost
+```
+
+13. Tes dengan membuat tabel :
+
+```sql
+CREATE TABLE test_table (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+```
+
+14. Pastikan tidak ada error
+
+## Menangani Error Saat Login 
+
+1.  Edit file konfigurasi PostgreSQL:
 
 ```bash
     sudo nano /etc/postgresql/<versi_postgresql>/main/pg_hba.conf
 ```
 
-9.  Cari baris berikut:
+2.  Cari baris berikut:
 
 ```html
     local   all             all                                     peer
 ```
 
-10. Ubah `peer` menjadi:
+3. Ubah `peer` menjadi:
 
 ```html
     md5
 ```
 
-11. Simpan file dan keluar:
+4. Simpan file dan keluar:
 
 -   Tekan `Ctrl + X`
 -   Tekan `Y`
 -   Tekan `Enter`
 
-12. Restart service PostgreSQL:
+5. Restart service PostgreSQL:
 
 ```bash
     sudo systemctl restart postgresql
 ```
 
-13. Tes koneksi:
+6. Tes koneksi:
 
 ```bash
     psql -U <user> -d <nama_database> -W
